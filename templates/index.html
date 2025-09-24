@@ -360,7 +360,7 @@
                     <button type="button" class="mode-btn" id="hybridBtn" 
                             {% if not hybrid_available %}disabled{% endif %}
                             onclick="checkUrl('hybrid')">
-                        🌐 Hybrid Analysis
+                        🌐 Advanced Analysis
                     </button>
                 </div>
                 
@@ -372,7 +372,7 @@
                         {% endif %}
                     </div>
                     <div class="mode-desc" id="hybridDesc">
-                        <strong>🌐 Hybrid Analysis:</strong> Enhanced detection using Hybrid Analysis API + comprehensive whitelist.
+                        <strong>🌐 Advanced Analysis:</strong> Enhanced detection using Hybrid Analysis API + comprehensive whitelist.
                         {% if not hybrid_available %}
                         <br><span class="unavailable">❌ Not available - Please set HYBRID_ANALYSIS_API_KEY environment variable</span>
                         {% endif %}
@@ -453,12 +453,14 @@
                     result.className = 'result phishing';
                     resultText.textContent = '⚠️ Phishing Detected!';
                     confidence.textContent = `Confidence: ${data.confidence}%`;
-                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Hybrid Analysis'}`;
+                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Advanced Analysis'}`;
+                    playResultSound('phishing');
                 } else {
                     result.className = 'result legitimate';
                     resultText.textContent = '✅ Legitimate URL';
                     confidence.textContent = `Confidence: ${data.confidence}%`;
-                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Hybrid Analysis'}`;
+                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Advanced Analysis'}`;
+                    playResultSound('legitimate');
                 }
                 
             } catch (error) {
@@ -473,6 +475,74 @@
 
         function setUrl(url) {
             urlInput.value = url;
+        }
+
+        // Audio feedback for results
+        let audioContext;
+        function ensureAudioContext() {
+            if (!audioContext) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioCtx();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        function playResultSound(type) {
+            const ctx = ensureAudioContext();
+            const now = ctx.currentTime;
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            if (type === 'phishing') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(880, now);
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.08, now + 0.25);
+
+                // short pause and second beep
+                const secondStart = now + 0.3;
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(740, secondStart);
+                gain2.gain.setValueAtTime(0.001, secondStart);
+                gain2.gain.exponentialRampToValueAtTime(0.25, secondStart + 0.02);
+                gain2.gain.exponentialRampToValueAtTime(0.05, secondStart + 0.25);
+                osc2.connect(gain2).connect(ctx.destination);
+                osc2.start(secondStart);
+                osc2.stop(secondStart + 0.3);
+
+                oscillator.connect(gain).connect(ctx.destination);
+                oscillator.start(now);
+                oscillator.stop(now + 0.3);
+            } else {
+                // legitimate: soft, pleasant chime
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, now); // C5
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                oscillator.connect(gain).connect(ctx.destination);
+                oscillator.start(now);
+                oscillator.stop(now + 0.28);
+
+                // gentle second note
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                const t2 = now + 0.28;
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(659.25, t2); // E5
+                gain2.gain.setValueAtTime(0.001, t2);
+                gain2.gain.exponentialRampToValueAtTime(0.06, t2 + 0.02);
+                gain2.gain.exponentialRampToValueAtTime(0.008, t2 + 0.22);
+                osc2.connect(gain2).connect(ctx.destination);
+                osc2.start(t2);
+                osc2.stop(t2 + 0.24);
+            }
         }
     </script>
 </body>

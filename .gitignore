@@ -1,3 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Environment files
+.env
+.env.*
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Data / artifacts
+models/*.joblib
+models/*.pkl
+*.log
+*.csv
+*.xlsx
+
+# OS
+Thumbs.db
+*.DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

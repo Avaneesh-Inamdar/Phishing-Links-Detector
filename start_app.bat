@@ -1,8 +1,11 @@
 @echo off
-set HYBRID_ANALYSIS_API_KEY=iwqh1aw6e4c8ee3fr0z6gcg47fe7ccbecdo72mndccd0d1d5usphjeecda559b5e
 echo Starting Phishing URL Detection App with Hybrid Analysis integration...
 echo.
-echo API Key Status: Enabled
+if "%HYBRID_ANALYSIS_API_KEY%"=="" (
+    echo API Key Status: Not set. Create a .env file with HYBRID_ANALYSIS_API_KEY.
+) else (
+    echo API Key Status: Set via environment
+)
 echo.
 
 REM Check if a test parameter is provided
