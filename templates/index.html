@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroPhish - Phishing URL Detection | Team ZeroPhish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #8B0000;
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #8B0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: #4A4A4A;
+            font-size: 1.3em;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .college-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 15px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .title-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .mode-option.active {
+            border-color: #667eea;
+            background: #e3e7ff;
+            font-weight: 600;
+        }
+
+        .mode-option:hover {
+            background: #e9ecef;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .result.legitimate {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.phishing {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.error {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .confidence {
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .examples {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .example-url {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .example-url:hover {
+            background: #e9ecef;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        .mode-descriptions {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .mode-desc {
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .mode-desc:last-child {
+            margin-bottom: 0;
+        }
+
+        .unavailable {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .team-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 15px auto;
+            display: inline-block;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer .team-name {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="title-container">
+                    <div class="title-text">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojOEIwMDAwO3N0b3Atb3BhY2l0eToxIiAvPgo8c3RvcCBvZmZzZXQ9IjUwJSIgc3R5bGU9InN0b3AtY29sb3I6I0RDMTRDQztzdG9wLW9wYWNpdHk6MSIgLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojOEIwMDAwO3N0b3Atb3BhY2l0eToxIiAvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+CjxwYXRoIGQ9Ik0zMCA1QzQ2LjU2OSA1IDYwIDE4LjQzMSA2MCAzNUM2MCA1MS41NjkgNDYuNTY5IDY1IDMwIDY1QzEzLjQzMSA2NSAwIDUxLjU2OSAwIDM1QzAgMTguNDMxIDEzLjQzMSA1IDMwIDVaIiBmaWxsPSJ1cmwoI2dyYWRpZW50KSIvPgo8cGF0aCBkPSJNMzAgMTBDNDIuMTUwNSAxMCA1MiAxOS44NDk1IDUyIDMyQzUyIDQ0LjE1MDUgNDIuMTUwNSA1NCAzMCA1NEMxNy44NDk1IDU0IDggNDQuMTUwNSA4IDMyQzggMTkuODQ5NSAxNy44NDk1IDEwIDMwIDEwWiIgZmlsbD0id2hpdGUiLz4KPHRleHQgeD0iMzAiIHk9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOEIwMDAwIiBmb250LWZhbWlseT0ic2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj5XQ0VTPC90ZXh0Pgo8L3N2Zz4K" alt="Walchand College Logo" class="college-logo">
+                        Team ZeroPhish
+                    </div>
+                    <div style="font-size: 0.7em; color: #666; font-weight: 400;">
+                        Walchand College of Engineering, Sangli
+                    </div>
+                </div>
+            </h1>
+            <p>Advanced Phishing URL Detection System</p>
+        </div>
+
+        {% if not system_loaded %}
+        <div class="warning">
+            ⚠️ <strong>Warning:</strong> System not initialized properly. Please check your configuration.
+        </div>
+        {% endif %}
+
+        <form id="urlForm">
+            <div class="input-group">
+                <label for="url">URL to Check:</label>
+                <input type="text" id="url" class="url-input" placeholder="https://example.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Choose Detection Mode:</label>
+                <div class="button-group">
+                    <button type="button" class="mode-btn" id="modelBtn" 
+                            {% if not model_available %}disabled{% endif %}
+                            onclick="checkUrl('model_only')">
+                        🤖 ML Model Only
+                    </button>
+                    <button type="button" class="mode-btn" id="hybridBtn" 
+                            {% if not hybrid_available %}disabled{% endif %}
+                            onclick="checkUrl('hybrid')">
+                        🌐 Hybrid Analysis
+                    </button>
+                </div>
+                
+                <div class="mode-descriptions">
+                    <div class="mode-desc" id="modelDesc">
+                        <strong>🤖 ML Model Only:</strong> Fast prediction using trained machine learning model + comprehensive whitelist.
+                        {% if not model_available %}
+                        <br><span class="unavailable">❌ Not available - Please train the model first: <code>python -m ml.train</code></span>
+                        {% endif %}
+                    </div>
+                    <div class="mode-desc" id="hybridDesc">
+                        <strong>🌐 Hybrid Analysis:</strong> Enhanced detection using Hybrid Analysis API + comprehensive whitelist.
+                        {% if not hybrid_available %}
+                        <br><span class="unavailable">❌ Not available - Please set HYBRID_ANALYSIS_API_KEY environment variable</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing URL...</p>
+        </div>
+
+        <div class="result" id="result">
+            <div id="resultText"></div>
+            <div class="confidence" id="confidence"></div>
+            <div class="mode-used" id="modeUsed"></div>
+        </div>
+
+        <div class="examples">
+            <h3>Try these examples:</h3>
+            <div class="example-url" onclick="setUrl('https://www.google.com')">https://www.google.com</div>
+            <div class="example-url" onclick="setUrl('http://phishing-example.com/secure-login')">http://phishing-example.com/secure-login</div>
+            <div class="example-url" onclick="setUrl('https://192.168.1.1/admin')">https://192.168.1.1/admin</div>
+        </div>
+
+        <div class="footer">
+            <div class="team-name">Team ZeroPhish</div>
+            <div>Walchand College of Engineering, Sangli</div>
+            <div style="margin-top: 10px; font-size: 12px;">
+                Advanced Phishing Detection System with ML & Hybrid Analysis
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('urlForm');
+        const urlInput = document.getElementById('url');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        const confidence = document.getElementById('confidence');
+        const modeUsed = document.getElementById('modeUsed');
+        async function checkUrl(mode) {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a URL to check');
+                return;
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url, mode: mode })
+                });
+
+                const data = await response.json();
+                
+                // Hide loading
+                loading.style.display = 'none';
+                
+                // Show result
+                result.style.display = 'block';
+                
+                if (data.error) {
+                    result.className = 'result error';
+                    resultText.textContent = `❌ Error: ${data.error}`;
+                    confidence.textContent = '';
+                    modeUsed.textContent = `Mode: ${mode}`;
+                } else if (data.result === 'Phishing') {
+                    result.className = 'result phishing';
+                    resultText.textContent = '⚠️ Phishing Detected!';
+                    confidence.textContent = `Confidence: ${data.confidence}%`;
+                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Hybrid Analysis'}`;
+                } else {
+                    result.className = 'result legitimate';
+                    resultText.textContent = '✅ Legitimate URL';
+                    confidence.textContent = `Confidence: ${data.confidence}%`;
+                    modeUsed.textContent = `Mode: ${mode === 'model_only' ? 'ML Model Only' : 'Hybrid Analysis'}`;
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                result.className = 'result error';
+                resultText.textContent = `❌ Error: ${error.message}`;
+                confidence.textContent = '';
+                modeUsed.textContent = `Mode: ${mode}`;
+            }
+        }
+
+        function setUrl(url) {
+            urlInput.value = url;
+        }
+    </script>
+</body>
+</html>
