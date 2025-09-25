@@ -173,10 +173,15 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-models/
-*.joblib
-*.pkl
-*.model
+# models/
+# *.joblib
+# *.pkl
+# *.model
+
+# Allow model files in ml/models directory
+!ml/models/
+ml/models/*
+!ml/models/.gitkeep
 
 # API Keys and sensitive data
 .env
