@@ -100,6 +100,8 @@ def extract_features(url: str) -> Dict[str, Any]:
         # Cloud & Infrastructure
         'cloudflare', 'aws', 'azure', 'gcp', 'heroku', 'digitalocean',
         'ubuntu', 'debian', 'redhat', 'centos', 'fedora', 'opensuse',
+        'linuxmint', 'manjaro', 'arch', 'elementary', 'zorin', 'suse',
+        'kde', 'gnome',
         'nvidia', 'intel', 'amd', 'qualcomm', 'samsung', 'lg', 'sony',
         
         # E-commerce (Global)

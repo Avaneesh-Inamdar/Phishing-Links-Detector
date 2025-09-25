@@ -28,6 +28,7 @@ class PhishingPredictor:
         self.scaler = None
         self.feature_names = None
         self.hybrid_analysis = None
+        self.phishing_threshold = 0.5
         self.load_model()
         self.load_hybrid_analysis()
     
@@ -37,10 +38,19 @@ class PhishingPredictor:
             model_path = os.path.join(self.model_dir, 'best_model.joblib')
             scaler_path = os.path.join(self.model_dir, 'scaler.joblib')
             features_path = os.path.join(self.model_dir, 'feature_names.joblib')
+            threshold_path = os.path.join(self.model_dir, 'threshold_legitimate_min_70.txt')
             
             self.model = joblib.load(model_path)
             self.scaler = joblib.load(scaler_path)
             self.feature_names = joblib.load(features_path)
+            # Load tuned threshold if present
+            try:
+                if os.path.exists(threshold_path):
+                    with open(threshold_path, 'r') as f:
+                        self.phishing_threshold = float(f.read().strip())
+                        print(f"✅ Loaded decision threshold: {self.phishing_threshold:.2f}")
+            except Exception as e:
+                print(f"⚠️  Could not load threshold file: {e}. Using default 0.5")
             
             print("✅ ML Model loaded successfully!")
             
@@ -198,6 +208,7 @@ class PhishingPredictor:
                 'cloudflare', 'aws', 'azure', 'gcp', 'heroku', 'digitalocean', 'linode',
                 'vultr', 'ovh', 'rackspace', 'godaddy', 'namecheap', 'bluehost', 'hostgator',
                 'ubuntu', 'debian', 'redhat', 'centos', 'fedora', 'opensuse', 'arch',
+                'linuxmint', 'manjaro', 'elementary', 'zorin', 'kde', 'gnome', 'suse',
                 'docker', 'kubernetes', 'jenkins', 'gitlab', 'atlassian', 'jetbrains',
                 
                 # ===== E-COMMERCE (GLOBAL) =====
@@ -366,12 +377,13 @@ class PhishingPredictor:
         prediction = None
         probability = None
         if self.model is not None and features_scaled is not None:
-            prediction = self.model.predict(features_scaled)[0]
             probability = self.model.predict_proba(features_scaled)[0]
+            phishing_prob = float(probability[1])
+            prediction = 1 if phishing_prob >= self.phishing_threshold else 0
         
         if prediction is not None and probability is not None:
             result = "Phishing" if prediction == 1 else "Legitimate"
-            confidence = max(probability) * 100
+            confidence = (phishing_prob if prediction == 1 else 1.0 - phishing_prob) * 100.0
             print(f"  → ML Model prediction: {result} (Confidence: {confidence:.2f}%)")
             return result, confidence
         else:
@@ -500,6 +512,7 @@ class PhishingPredictor:
                 'cloudflare', 'aws', 'azure', 'gcp', 'heroku', 'digitalocean', 'linode',
                 'vultr', 'ovh', 'rackspace', 'godaddy', 'namecheap', 'bluehost', 'hostgator',
                 'ubuntu', 'debian', 'redhat', 'centos', 'fedora', 'opensuse', 'arch',
+                'linuxmint', 'manjaro', 'elementary', 'zorin', 'kde', 'gnome', 'suse',
                 'docker', 'kubernetes', 'jenkins', 'gitlab', 'atlassian', 'jetbrains',
                 
                 # ===== E-COMMERCE (GLOBAL) =====

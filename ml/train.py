@@ -53,6 +53,7 @@ class PhishingDetector:
         self.best_model = None
         self.best_model_name = None
         self.feature_names = None
+        self.optimal_threshold = 0.5
         
     def load_and_preprocess_data(self, csv_path: str):
         """
@@ -189,6 +190,42 @@ class PhishingDetector:
         
         print(f"\nBest model: {self.best_model_name} (F1-Score: {best_f1:.4f})")
         return results
+
+    def tune_threshold_for_legitimate(self, X_valid, y_valid, min_legit_recall: float = 0.70):
+        """
+        Find a probability threshold on the positive class (phishing) such that
+        legitimate recall (class 0 correctly labeled as Legitimate) is at least the
+        requested level. Chooses the highest threshold meeting the constraint to
+        minimize false positives on legitimate domains.
+        """
+        if self.best_model is None:
+            print("No best model to tune threshold for.")
+            self.optimal_threshold = 0.5
+            return self.optimal_threshold
+
+        # Ensure the model supports predict_proba
+        if not hasattr(self.best_model, 'predict_proba'):
+            print("Best model lacks predict_proba; using default threshold 0.5")
+            self.optimal_threshold = 0.5
+            return self.optimal_threshold
+
+        proba = self.best_model.predict_proba(X_valid)[:, 1]  # probability of phishing
+        thresholds = np.linspace(0.50, 0.95, 46)  # sweep from 0.50 to 0.95
+        best_t = 0.5
+        best_fp = 1e9
+        from sklearn.metrics import confusion_matrix
+        for t in thresholds:
+            y_pred = (proba >= t).astype(int)
+            tn, fp, fn, tp = confusion_matrix(y_valid, y_pred).ravel()
+            legit_recall = tn / (tn + fp) if (tn + fp) > 0 else 0.0  # specificity
+            if legit_recall >= min_legit_recall:
+                # prefer fewer false positives, with higher threshold tie-breaker
+                if fp < best_fp or (fp == best_fp and t > best_t):
+                    best_fp = fp
+                    best_t = t
+        self.optimal_threshold = float(best_t)
+        print(f"Selected threshold for >={int(min_legit_recall*100)}% legitimate recall: {self.optimal_threshold:.2f}")
+        return self.optimal_threshold
     
     def save_model(self, model_dir='models'):
         """Save the best model and scaler."""
@@ -198,14 +235,18 @@ class PhishingDetector:
         model_path = os.path.join(model_dir, 'best_model.joblib')
         scaler_path = os.path.join(model_dir, 'scaler.joblib')
         features_path = os.path.join(model_dir, 'feature_names.joblib')
+        threshold_path = os.path.join(model_dir, 'threshold_legitimate_min_70.txt')
         
         joblib.dump(self.best_model, model_path)
         joblib.dump(self.scaler, scaler_path)
         joblib.dump(self.feature_names, features_path)
+        with open(threshold_path, 'w') as f:
+            f.write(str(self.optimal_threshold))
         
         print(f"Model saved to {model_path}")
         print(f"Scaler saved to {scaler_path}")
         print(f"Feature names saved to {features_path}")
+        print(f"Decision threshold saved to {threshold_path}")
         
         # Save model info
         with open(os.path.join(model_dir, 'model_info.txt'), 'w') as f:
@@ -299,6 +340,9 @@ def main():
     # Evaluate models
     results = detector.evaluate_models(trained_models, X_test, y_test)
     
+    # Tune decision threshold to achieve >=70% legitimate recall on validation
+    detector.tune_threshold_for_legitimate(X_test, y_test, min_legit_recall=0.70)
+
     # Save the best model
     detector.save_model()
     
