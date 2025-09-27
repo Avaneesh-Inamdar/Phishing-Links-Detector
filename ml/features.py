@@ -113,7 +113,7 @@ def extract_features(url: str) -> Dict[str, Any]:
         'swiggy', 'zomato', 'dunzo', 'urbancompany', 'bookmyshow', 'makemytrip',
         'goibibo', 'cleartrip', 'redbus', 'ola', 'rapido', 'zepto',
         'jiomart', 'reliancedigital', 'croma', 'vijaysales', 'tatacliq',
-        'policybazaar', 'coverfox', 'acko', 'digit', 'bajajfinserv',
+        'policybazaar', 'coverfox', 'acko', 'digit', 'bajajfinserv', 'olx',
         
         # Insurance Companies
         'lic', 'sbi', 'hdfc', 'icici', 'bajaj', 'tata', 'reliance',

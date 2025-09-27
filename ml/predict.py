@@ -223,7 +223,7 @@ class PhishingPredictor:
                 'goibibo', 'cleartrip', 'redbus', 'ola', 'rapido', 'zepto', 'instamart',
                 'jiomart', 'reliancedigital', 'croma', 'vijaysales', 'tatacliq', 'snapdeal',
                 'shopclues', 'pepperfry', 'urbanladder', 'fabindia', 'lifestyle', 'pantaloons',
-                'westside', 'max', 'reliance', 'future', 'bigbazaar', 'easyday',
+                'westside', 'max', 'reliance', 'future', 'bigbazaar', 'easyday', 'olx',
                 
                 # ===== INSURANCE COMPANIES =====
                 'lic', 'sbi', 'hdfc', 'icici', 'bajaj', 'tata', 'reliance', 'aditya',
@@ -527,7 +527,7 @@ class PhishingPredictor:
                 'goibibo', 'cleartrip', 'redbus', 'ola', 'rapido', 'zepto', 'instamart',
                 'jiomart', 'reliancedigital', 'croma', 'vijaysales', 'tatacliq', 'snapdeal',
                 'shopclues', 'pepperfry', 'urbanladder', 'fabindia', 'lifestyle', 'pantaloons',
-                'westside', 'max', 'reliance', 'future', 'bigbazaar', 'easyday',
+                'westside', 'max', 'reliance', 'future', 'bigbazaar', 'easyday', 'olx',
                 
                 # ===== INSURANCE COMPANIES =====
                 'lic', 'sbi', 'hdfc', 'icici', 'bajaj', 'tata', 'reliance', 'aditya',
