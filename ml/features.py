@@ -91,11 +91,24 @@ def extract_features(url: str) -> Dict[str, Any]:
         'irs', 'ssa', 'medicare', 'medicaid', 'usps', 'dmv',
         'nhs', 'hmrc', 'dvla', 'passport', 'immigration',
         
+        # Additional Government Domains
+        'timesofindia', 'indiatimes', 'ndtv', 'thehindu', 'indianexpress', 'bbc', 'cnn', 'reuters'
+        
         # Educational Institutions
         'mit', 'harvard', 'stanford', 'berkeley', 'caltech', 'princeton',
         'yale', 'columbia', 'cornell', 'upenn', 'dartmouth', 'brown',
         'iit', 'iisc', 'iim', 'nit', 'iiit', 'bits', 'vit', 'srm',
         'du', 'jnu', 'bhu', 'amu', 'jamia', 'tiss', 'isi', 'jmi',
+        
+        # Additional Educational Institutions
+        'coursera', 'udemy', 'khanacademy', 'edx', 'swayam', 'nptel', 'ignou', 'nios',
+        # Indian Educational Institutions (.ac.in)
+        'walchandsangli', 'iitb', 'iitm', 'iisc', 'jnu', 'du', 'amu', 'bhu',
+        'iitd', 'iitk', 'iitr', 'iitg', 'iith', 'iitbbs', 'iitj', 'iitpkd',
+        'iitgoa', 'iitbhilai', 'iittirupati', 'iitdh', 'iitmandi',
+        'nitk', 'nitt', 'nitc', 'nitw', 'nitr', 'nits', 'nitd', 'nitj', 'nitap',
+        'iiitd', 'iiitb', 'iiith', 'iiitg', 'iiitl', 'iiitm', 'iiitv', 'iiita',
+        'dtu', 'nsit', 'igdtuw', 'thapar', 'lpu', 'chitkara', 'bennett'
         
         # Cloud & Infrastructure
         'cloudflare', 'aws', 'azure', 'gcp', 'heroku', 'digitalocean',
@@ -114,6 +127,9 @@ def extract_features(url: str) -> Dict[str, Any]:
         'goibibo', 'cleartrip', 'redbus', 'ola', 'rapido', 'zepto',
         'jiomart', 'reliancedigital', 'croma', 'vijaysales', 'tatacliq',
         'policybazaar', 'coverfox', 'acko', 'digit', 'bajajfinserv', 'olx',
+        
+        # Additional E-commerce Domains
+        'quikr', 'paytmmall', 'shopsy', 'meesho', 'dealshare', 'bulkmro', 'snapdeal', 'shopclues', 'pepperfry'
         
         # Insurance Companies
         'lic', 'sbi', 'hdfc', 'icici', 'bajaj', 'tata', 'reliance',

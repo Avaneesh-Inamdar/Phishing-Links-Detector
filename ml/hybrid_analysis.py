@@ -466,10 +466,37 @@ class HybridAnalysisAPI:
                 
                 # Suspicious subdomains
                 'secure.', 'verify.', 'update.', 'login.', 'account.',
+                
+                # Brand impersonation patterns
+                'g00gle', 'fac3book', 'amaz0n', 'micr0soft', 'app1e',
+                'payp4l', 'gmai1', 'outl00k', 'yah00', 'tw1tter',
+                
+                # Common phishing patterns
+                'security-alert', 'account-suspended', 'verify-account',
+                'update-payment', 'confirm-identity', 'login-verify'
             ]
             
             # Check for suspicious patterns
             is_suspicious = any(pattern in domain for pattern in suspicious_patterns)
+            
+            # Additional checks for brand impersonation
+            # Check for common character substitutions in popular brands
+            brand_impersonation_patterns = [
+                ('google', ['g00gle', 'g0ogle', 'googIe', 'goog1e']),
+                ('facebook', ['fac3book', 'faceb00k', 'facebook']),
+                ('amazon', ['amaz0n', 'amazom', 'amazon']),
+                ('paypal', ['payp4l', 'paypaI', 'paypa1']),
+                ('microsoft', ['micr0soft', 'microsooft', 'microsft']),
+                ('apple', ['app1e', 'appIe', 'appl3']),
+                ('gmail', ['gmai1', 'gmaiI', 'gmai!']),
+                ('yahoo', ['yah00', 'yaho0', 'yahho']),
+                ('twitter', ['tw1tter', 'twittter', 'twittr'])
+            ]
+            
+            for brand, variants in brand_impersonation_patterns:
+                if any(variant in domain.lower() for variant in variants):
+                    is_suspicious = True
+                    break
             
             # Check for IP addresses (often suspicious)
             import re
@@ -495,7 +522,7 @@ class HybridAnalysisAPI:
                 suspicion_score += 10
             
             # Determine result based on suspicion score
-            if suspicion_score >= 50:
+            if suspicion_score >= 30:
                 print(f"  → Domain appears suspicious (score: {suspicion_score})")
                 return {
                     'success': True,

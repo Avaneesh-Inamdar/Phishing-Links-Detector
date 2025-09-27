@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # Initialize the predictor
 try:
-    predictor = PhishingPredictor(model_dir='ml/models')
+    predictor = PhishingPredictor(model_dir='models')
     system_loaded = True
     model_available = predictor.model is not None
     hybrid_available = predictor.hybrid_analysis is not None

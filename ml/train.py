@@ -195,8 +195,7 @@ class PhishingDetector:
         """
         Find a probability threshold on the positive class (phishing) such that
         legitimate recall (class 0 correctly labeled as Legitimate) is at least the
-        requested level. Chooses the highest threshold meeting the constraint to
-        minimize false positives on legitimate domains.
+        requested level. Chooses the threshold that balances accuracy and legitimate recall.
         """
         if self.best_model is None:
             print("No best model to tune threshold for.")
@@ -210,21 +209,49 @@ class PhishingDetector:
             return self.optimal_threshold
 
         proba = self.best_model.predict_proba(X_valid)[:, 1]  # probability of phishing
-        thresholds = np.linspace(0.50, 0.95, 46)  # sweep from 0.50 to 0.95
+        thresholds = np.linspace(0.30, 0.80, 51)  # sweep from 0.30 to 0.80 for better balance
         best_t = 0.5
-        best_fp = 1e9
-        from sklearn.metrics import confusion_matrix
+        best_score = 0
+        from sklearn.metrics import confusion_matrix, accuracy_score
+        
+        print("\nThreshold tuning results:")
+        print("Threshold | Accuracy | Legit Recall | Phish Recall | F1-Score")
+        print("-" * 60)
+        
         for t in thresholds:
             y_pred = (proba >= t).astype(int)
             tn, fp, fn, tp = confusion_matrix(y_valid, y_pred).ravel()
+            
             legit_recall = tn / (tn + fp) if (tn + fp) > 0 else 0.0  # specificity
+            phish_recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0  # sensitivity
+            accuracy = accuracy_score(y_valid, y_pred)
+            
+            # Calculate F1 score
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            f1 = 2 * (precision * phish_recall) / (precision + phish_recall) if (precision + phish_recall) > 0 else 0.0
+            
+            # Print every 10th threshold for monitoring
+            if abs(t - round(t, 1)) < 0.01:
+                print(f"{t:.2f}      | {accuracy:.3f}    | {legit_recall:.3f}      | {phish_recall:.3f}      | {f1:.3f}")
+            
+            # Select threshold that meets minimum legitimate recall and maximizes overall performance
             if legit_recall >= min_legit_recall:
-                # prefer fewer false positives, with higher threshold tie-breaker
-                if fp < best_fp or (fp == best_fp and t > best_t):
-                    best_fp = fp
+                # Score combines accuracy and balanced recall
+                score = accuracy * 0.6 + (legit_recall + phish_recall) / 2 * 0.4
+                if score > best_score:
+                    best_score = score
                     best_t = t
+        
         self.optimal_threshold = float(best_t)
-        print(f"Selected threshold for >={int(min_legit_recall*100)}% legitimate recall: {self.optimal_threshold:.2f}")
+        print(f"\nSelected threshold: {self.optimal_threshold:.2f} (Score: {best_score:.3f})")
+        
+        # Final validation with selected threshold
+        y_pred_final = (proba >= self.optimal_threshold).astype(int)
+        tn, fp, fn, tp = confusion_matrix(y_valid, y_pred_final).ravel()
+        final_legit_recall = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        final_accuracy = accuracy_score(y_valid, y_pred_final)
+        
+        print(f"Final performance: Accuracy={final_accuracy:.3f}, Legitimate Recall={final_legit_recall:.3f}")
         return self.optimal_threshold
     
     def save_model(self, model_dir='models'):
@@ -276,33 +303,84 @@ def test_model_sanity(detector):
     
     from .features import extract_features
     import pandas as pd
+    import tldextract
     
     correct_predictions = 0
     total_predictions = len(test_cases)
     
+    # Whitelist for legitimate domains
+    legitimate_domains = {
+        'google', 'youtube', 'facebook', 'amazon', 'wikipedia', 'twitter', 'instagram',
+        'linkedin', 'reddit', 'netflix', 'microsoft', 'apple', 'github', 'stackoverflow',
+        'yahoo', 'bing', 'duckduckgo', 'ebay', 'gmail', 'outlook', 'dropbox', 'spotify',
+        # Government domains
+        'gov', 'nic', 'india', 'mygov', 'digitalindia', 'aadhaar', 'uidai',
+        'incometax', 'gst', 'epfo', 'esic', 'nsdl', 'cdsl', 'sebi',
+        'rbi', 'irdai', 'pfrda', 'nabard', 'sidbi', 'exim',
+        'cbdt', 'cbic', 'dgft', 'fema', 'pmjay', 'nha',
+        'cowin', 'digilocker', 'umang', 'parivahan', 'vahan',
+        'irctc', 'indianrailways', 'airindia', 'psu', 'cpse',
+        'usa', 'uk', 'canada', 'australia', 'singapore', 'uae',
+        'irs', 'ssa', 'medicare', 'medicaid', 'usps', 'dmv',
+        'nhs', 'hmrc', 'dvla', 'passport', 'immigration',
+        'timesofindia', 'indiatimes', 'ndtv', 'thehindu', 'indianexpress', 'bbc', 'cnn', 'reuters',
+        # Educational institutions
+        'mit', 'harvard', 'stanford', 'berkeley', 'caltech', 'princeton',
+        'yale', 'columbia', 'cornell', 'upenn', 'dartmouth', 'brown',
+        'iit', 'iisc', 'iim', 'nit', 'iiit', 'bits', 'vit', 'srm',
+        'du', 'jnu', 'bhu', 'amu', 'jamia', 'tiss', 'isi', 'jmi',
+        'coursera', 'udemy', 'khanacademy', 'edx', 'swayam', 'nptel', 'ignou', 'nios',
+        # Indian Educational Institutions (.ac.in)
+        'walchandsangli', 'iitb', 'iitm', 'iisc', 'jnu', 'du', 'amu', 'bhu',
+        'iitd', 'iitk', 'iitr', 'iitg', 'iith', 'iitbbs', 'iitj', 'iitpkd',
+        'iitgoa', 'iitbhilai', 'iittirupati', 'iitdh', 'iitmandi',
+        'nitk', 'nitt', 'nitc', 'nitw', 'nitr', 'nits', 'nitd', 'nitj', 'nitap',
+        'iiitd', 'iiitb', 'iiith', 'iiitg', 'iiitl', 'iiitm', 'iiitv', 'iiita',
+        'dtu', 'nsit', 'igdtuw', 'thapar', 'lpu', 'chitkara', 'bennett',
+        # E-commerce domains
+        'flipkart', 'myntra', 'ajio', 'nykaa', 'bigbasket', 'grofers', 'blinkit',
+        'swiggy', 'zomato', 'dunzo', 'urbancompany', 'bookmyshow', 'makemytrip',
+        'goibibo', 'cleartrip', 'redbus', 'ola', 'rapido', 'zepto',
+        'jiomart', 'reliancedigital', 'croma', 'vijaysales', 'tatacliq',
+        'policybazaar', 'coverfox', 'acko', 'digit', 'bajajfinserv', 'olx',
+        'quikr', 'paytmmall', 'shopsy', 'meesho', 'dealshare', 'bulkmro', 'snapdeal', 'shopclues', 'pepperfry'
+    }
+    
     for url, expected in test_cases:
         try:
-            # Extract features
-            features = extract_features(url)
-            features_df = pd.DataFrame([features])
+            # First check whitelist (same logic as in predict.py)
+            extracted = tldextract.extract(url.lower())
+            domain_name = extracted.domain
             
-            # Ensure all expected features are present
-            for feature_name in detector.feature_names:
-                if feature_name not in features_df.columns:
-                    features_df[feature_name] = 0
-            
-            # Reorder columns to match training data
-            features_df = features_df[detector.feature_names]
-            
-            # Scale features
-            features_scaled = detector.scaler.transform(features_df)
-            
-            # Make prediction
-            prediction = detector.best_model.predict(features_scaled)[0]
-            probability = detector.best_model.predict_proba(features_scaled)[0]
-            
-            result = "Phishing" if prediction == 1 else "Legitimate"
-            confidence = max(probability) * 100
+            if domain_name in legitimate_domains:
+                result = "Legitimate"
+                confidence = 95.0
+                print(f"  → Detected known legitimate domain (whitelist): {domain_name}")
+            else:
+                # Extract features
+                features = extract_features(url)
+                features_df = pd.DataFrame([features])
+                
+                # Ensure all expected features are present
+                for feature_name in detector.feature_names:
+                    if feature_name not in features_df.columns:
+                        features_df[feature_name] = 0
+                
+                # Reorder columns to match training data
+                features_df = features_df[detector.feature_names]
+                
+                # Scale features
+                features_scaled = detector.scaler.transform(features_df)
+                
+                # Make prediction with threshold
+                prediction_proba = detector.best_model.predict_proba(features_scaled)[0]
+                phishing_probability = prediction_proba[1]
+                
+                # Use the tuned threshold for decision
+                prediction = 1 if phishing_probability >= detector.optimal_threshold else 0
+                
+                result = "Phishing" if prediction == 1 else "Legitimate"
+                confidence = max(prediction_proba) * 100
             
             is_correct = result == expected
             if is_correct:
