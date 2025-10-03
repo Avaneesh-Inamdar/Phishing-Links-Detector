@@ -142,6 +142,15 @@ class PhishingPredictor:
                 'meesho', 'minepi', 'codechef', 'mozilla', 'firefox', 'chrome', 'opera', 'brave',
                 'whatsapp', 'telegram', 'discord', 'slack', 'skype', 'teams', 'notion',
                 'figma', 'canva', 'trello', 'asana', 'jira', 'confluence', 'bitbucket',
+                'mi', 'poco',
+                
+                # ===== AI PLATFORMS & TOOLS =====
+                'openai', 'chatgpt', 'perplexity', 'anthropic', 'claude', 'gemini', 'googleai',
+                'mistral', 'deepseek', 'copilot', 'bing', 'metaai', 'huggingface', 'cohere',
+                'replicate', 'runwayml', 'stability', 'midjourney', 'dalle', 'leonardo',
+                'jasper', 'writesonic', 'copyai', 'rytr', 'wordtune', 'quillbot', 'grammarly',
+                'notion', 'obsidian', 'replit', 'kaggle', 'poe', 'you', 'phind', 'forefront',
+                'character', 'ai', 'socratic', 'wolfram', 'wolframalpha', 'photomath',
                 
                 # ===== EDUCATIONAL INSTITUTIONS (GLOBAL) =====
                 # Top US Universities
@@ -339,27 +348,19 @@ class PhishingPredictor:
                 'carsguide', 'autotrader', 'cars', 'carmax', 'carvana', 'vroom',
                 
                 # ===== REAL ESTATE =====
-                'magicbricks', 'housing', '99acres', 'commonfloor', 'proptiger',
-                'makaan', 'nobroker', 'nestaway', 'zolo', 'colive',
-                'zillow', 'realtor', 'redfin', 'trulia', 'apartments', 'rent',
-                'rightmove', 'zoopla', 'onthemarket', 'primelocation',
+                'magicbricks', 'housing', '99acres', 'commonfloor', 'proptiger', 'makaan',
                 
-                # ===== GAMING & ENTERTAINMENT =====
-                'steam', 'epic', 'origin', 'uplay', 'battlenet', 'gog', 'itch',
-                'nintendo', 'playstation', 'xbox', 'twitch', 'youtube', 'mixer',
-                'roblox', 'minecraft', 'fortnite', 'pubg', 'valorant', 'csgo',
-                'dota2', 'lol', 'overwatch', 'apex', 'cod', 'fifa', 'nba2k',
+                # ===== AI PLATFORMS & TOOLS =====
+                'openai', 'chatgpt', 'perplexity', 'anthropic', 'claude', 'gemini', 'googleai',
+                'mistral', 'deepseek', 'copilot', 'bing', 'metaai', 'huggingface', 'cohere',
+                'replicate', 'runwayml', 'stability', 'midjourney', 'dalle', 'leonardo',
+                'jasper', 'writesonic', 'copyai', 'rytr', 'wordtune', 'quillbot', 'grammarly',
+                'notion', 'obsidian', 'replit', 'kaggle', 'poe', 'you', 'phind', 'forefront',
+                'character', 'ai', 'socratic', 'wolfram', 'wolframalpha', 'photomath',
                 
-                # ===== CRYPTOCURRENCY & FINTECH =====
-                'coinbase', 'binance', 'kraken', 'gemini', 'bitfinex', 'huobi',
-                'wazirx', 'coindcx', 'zebpay', 'unocoin', 'bitbns', 'giottus',
-                'coinswitch', 'buyucoin', 'koinex', 'bitbay', 'localbitcoins',
-                
-                # ===== UTILITIES & SERVICES =====
-                'adani', 'reliance', 'ongc', 'ntpc', 'powergrid', 'coal', 'sail',
-                'indianoil', 'bpcl', 'hpcl', 'gail', 'bhel', 'hal', 'bel',
-                'airtel', 'jio', 'vi', 'bsnl', 'mtnl', 'idea', 'vodafone',
-                'verizon', 'att', 'tmobile', 'sprint', 'orange', 'telefonica'
+                # ===== SOCIAL & COMMUNICATION =====
+                'clubhouse', 'signal', 'viber', 'wechat', 'line', 'kakao',
+                'meetup', 'eventbrite', 'zoom', 'webex', 'gotomeeting', 'bluejeans'
             }
             
             # If it's a known legitimate domain, return legitimate with high confidence
@@ -641,7 +642,6 @@ class PhishingPredictor:
                 
                 # ===== REAL ESTATE =====
                 'magicbricks', 'housing', '99acres', 'commonfloor', 'proptiger', 'makaan',
-                'zillow', 'realtor', 'redfin', 'trulia', 'apartments', 'rent',
                 
                 # ===== TRAVEL & HOSPITALITY =====
                 'marriott', 'hilton', 'hyatt', 'intercontinental', 'accor', 'wyndham',

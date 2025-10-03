@@ -62,6 +62,14 @@ def extract_features(url: str) -> Dict[str, Any]:
         'wordpress', 'blogger', 'medium', 'tumblr', 'pinterest', 'snapchat', 'tiktok',
         'whatsapp', 'telegram', 'discord', 'slack', 'skype', 'teams',
         
+        # AI Platforms & Tools
+        'openai', 'chatgpt', 'perplexity', 'anthropic', 'claude', 'gemini', 'googleai',
+        'mistral', 'deepseek', 'copilot', 'bing', 'metaai', 'huggingface', 'cohere',
+        'replicate', 'runwayml', 'stability', 'midjourney', 'dalle', 'leonardo',
+        'jasper', 'writesonic', 'copyai', 'rytr', 'wordtune', 'quillbot', 'grammarly',
+        'notion', 'obsidian', 'replit', 'kaggle', 'poe', 'you', 'phind', 'forefront',
+        'character', 'ai', 'socratic', 'wolfram', 'wolframalpha', 'photomath',
+        
         # Financial & Payment Services
         'paypal', 'stripe', 'visa', 'mastercard', 'amex', 'discover', 'razorpay', 'paytm',
         'phonepe', 'googlepay', 'amazonpay', 'mobikwik', 'freecharge', 'bharatpe',
