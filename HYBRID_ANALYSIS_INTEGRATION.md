@@ -21,12 +21,12 @@ Hybrid Analysis is a free malware analysis service that detects and analyzes unk
    
    On Windows:
    ```cmd
-   set HYBRID_ANALYSIS_API_KEY=iwqh1aw6e4c8ee3fr0z6gcg47fe7ccbecdo72mndccd0d1d5usphjeecda559b5e
+   set HYBRID_ANALYSIS_API_KEY=your_api_key_here
    ```
    
    On Linux/Mac:
    ```bash
-   export HYBRID_ANALYSIS_API_KEY=iwqh1aw6e4c8ee3fr0z6gcg47fe7ccbecdo72mndccd0d1d5usphjeecda559b5e
+   export HYBRID_ANALYSIS_API_KEY=your_api_key_here
    ```
 
 4. **Run the application**

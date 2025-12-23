@@ -40,9 +40,9 @@ git commit -m "Add secure environment variable setup"
 git push origin main
 ```
 
-### Your `.env` file contains:
+### Your `.env` file should contain:
 ```env
-HYBRID_ANALYSIS_API_KEY=iwqh1aw6e4c8ee3fr0z6gcg47fe7ccbecdo72mndccd0d1d5usphjeecda559b5e
+HYBRID_ANALYSIS_API_KEY=your_api_key_here
 FLASK_ENV=development
 FLASK_DEBUG=True
 ```
